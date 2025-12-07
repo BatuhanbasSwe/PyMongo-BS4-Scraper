@@ -36,8 +36,11 @@ class MongoDBManager:
             data_dict["created_at"] = datetime.datetime.now()
 
             try:
-                result = self.collection.insert_one(data_dict)
-
+                result = self.collection.update_one(
+                    {"title":data_dict["title"]},
+                    {"$set":data_dict},
+                    upsert=True
+                )
 
                 title= data_dict.get('title', 'Unknown')
                 rating = data_dict.get('rating', 0.0)
@@ -47,17 +50,8 @@ class MongoDBManager:
                 else:
                     print(f"{title} | {rating}")
             except Exception as e:
-                print(f" Kayıt Hatası: {e}")
+                print(f"Error: {e}")
 
         else:
             print("--> Connection not established yet!")
 
-    def fetch_all_data(self):
-        if self.collection is not None:
-            data_cursor = self.collection.find()
-            print("\n--- Current Data in Collection ---")
-            for document in data_cursor:
-                print(document)
-            print("----------------------------------\n")
-        else:
-            print("--> Connection not established yet!")

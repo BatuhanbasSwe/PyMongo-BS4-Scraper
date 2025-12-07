@@ -1,7 +1,7 @@
 from databasemanager import MongoDBManager
 from new_scraper import IMDbScraper
 from dataclasses import dataclass, asdict
-import time
+
 
 
 @dataclass
@@ -10,7 +10,7 @@ class IMDbContent:
     rating: float
     year: int
     category: str
-
+    watched: bool = False
 
 MY_URI = "mongodb+srv://oguzbatu2934_db_user:w9vjsbD855H1meI1@cluster0.kejl8qw.mongodb.net/?appName=Cluster0"
 
@@ -21,6 +21,7 @@ MENU_OPTIONS = {
 }
 
 
+
 def print_menu():
     print("\n" + "=" * 40)
     print("      IMDb SCRAPER FINAL (STABLE)      ")
@@ -28,8 +29,55 @@ def print_menu():
     print("1. Top 250 Movies")
     print("2. Top 250 TV Shows")
     print("3. Most Popular Movies")
+    print("---ALGORITHM---")
+    print("4. Find highest Rating ")
+    print("5. Mark a Movie as Watched")
+    print("6. Show My Watched Movies")
     print("Q. Exit")
-    print("=" * 40)
+    print("="* 40)
+
+
+##---RATING ALGORITHM---------
+def filter_by_rating(db_manager: MongoDBManager):
+    try:
+        min_rating =float(input("Minimum Rating: (e.g. 8.3):"))
+        query = {"rating": {"$gte": min_rating}}
+        results = list(db_manager.collection.find(query).sort("rating", -1))
+
+        if results:
+            print(f"\n Found {len(results)} movies with minimum rating {min_rating} +:")
+            for i, item in enumerate(results,1):
+                status="Watched" if item.get("watched") else " "
+                print(f"{i}.{item['title']}  | {item['rating']} {status}")
+        else:
+            print("No Movies found above rating")
+    except ValueError:
+        print(" Invalid Number or range entered.")
+
+### -----MARK AS WATCHED -----
+def mark_as_watched(db_manager):
+    search_name = input(" Enter movie,serie or show name to mark as watched:").strip()
+    movie= db_manager.collection.find_one({"title":{"$regex":search_name, "$options":"i"}})
+
+    if movie:
+        db_manager.collection.update_one(
+            {"_id":movie["_id"]},
+            {"$set":{"watched":True}}
+        )
+        print(f"Movies {search_name} has been marked as watched! .")
+    else:
+        print(f"Movie {search_name} does not exist. ")
+### ----- WATCHED LIST ------
+def show_watched_list(db_manager: MongoDBManager):
+    query = {"watched":True}
+    results=list(db_manager.collection.find(query))
+    if results:
+        print(f"\n Your watched list length is : --> {len(results)} :")
+        for i ,item in enumerate(results,1):
+            print(f"{i}. {item['title']} | {item['rating']} ")
+    else:
+        print("You haven't marked any movies or series as watched yet.")
+
 
 
 if __name__ == "__main__":
@@ -39,7 +87,7 @@ if __name__ == "__main__":
     if db_manager.connect():
         while True:
             print_menu()
-            choice = input("Secim (1-3 veya Q): ").strip().upper()
+            choice = input("Choice: ").strip().upper()
 
             if choice == 'Q':
                 break
@@ -47,19 +95,17 @@ if __name__ == "__main__":
             if choice in MENU_OPTIONS:
                 target = MENU_OPTIONS[choice]
 
-                # Kullanıcıdan sayı iste (Max 25 geleceğini bilse de soruyoruz)
                 try:
-                    limit = int(input(f"'{target['name']}' kac tane cekilsin? (Max 25): "))
+                    limit = int(input(f"Count for {target['name']}'  (Max 25): "))
+
                 except:
                     limit = 25
 
-                print(f"\n{target['name']} cekiliyor...")
-
+                print(f"\n Fetching {target['name']} ...")
                 data = scraper.scrape_data(target['url'], limit)
 
                 if data:
-                    print(f"{len(data)} veri bulundu, kaydediliyor...")
-                    count = 0
+                    print(f"{len(data)} items found , saving to MongoDB...")
                     for i, item in enumerate (data,1):
                         content = IMDbContent(
                             title=item["title"],
@@ -67,15 +113,24 @@ if __name__ == "__main__":
                             year=item["year"],
                             category=target["name"]
                         )
-                        db_manager.insert_data(asdict(content), order_no=i)
-
-
-                    print(f"Completed. {count} records inserted.")
+                        db_manager.insert_data(asdict(content),order_no=i)
+                    print("Completed.")
                 else:
                     print("No data inserted.")
+                input("\n Press Enter to continue...")
 
-                input("\n Press any key to continue...")
+            elif choice == '4':
+                filter_by_rating(db_manager)
+                input("\n Press Enter to continue...")
+            elif choice == '5':
+                mark_as_watched(db_manager)
+                input("\n Press Enter to continue...")
+            elif choice == '6':
+                show_watched_list(db_manager)
+                input("\n Press Enter to continue...")
             else:
                 print("Invalid choice.")
     else:
         print("Database connection failed.")
+db_manager.collection.delete_many({})
+print("⚠️ DATABASE CLEARED!")
