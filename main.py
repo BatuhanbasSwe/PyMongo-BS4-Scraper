@@ -12,7 +12,7 @@ class IMDbContent:
     category: str
     watched: bool = False
 
-MY_URI = "mongodb+srv://oguzbatu2934_db_user:w9vjsbD855H1meI1@cluster0.kejl8qw.mongodb.net/?appName=Cluster0"
+MY_URI = "mongodb+srv://oguzbatu2934_db_user:MYPASSWORD@cluster0.kejl8qw.mongodb.net/?appName=Cluster0"
 
 MENU_OPTIONS = {
     "1": {"name": "Top 250 Movies", "url": "https://www.imdb.com/chart/top/?ref_=hm_nv_menu"},
