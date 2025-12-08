@@ -9,7 +9,11 @@ import argparse
 from dataclasses import dataclass, asdict
 from databasemanager import MongoDBManager
 from new_scraper import IMDbScraper
+from dotenv import load_dotenv
+from databasemanager import MongoDBManager
+import os
 
+load_dotenv()
 
 @dataclass
 class IMDbContent:
@@ -23,7 +27,9 @@ class IMDbContent:
 
 # MongoDB Connection String
 # IMPORTANT: Replace MYPASSWORD with your actual password!
-MY_URI ="mongodb+srv://oguzbatu2934_db_user:PASSWORD@cluster0.kejl8qw.mongodb.net/?appName=Cluster0"
+MY_URI = os.getenv("MONGO_URI")
+
+db_manager = MongoDBManager(MY_URI, "IMDb_Archive", "Allcontent")
 
 # --- SMART LINKS (For fetching 250+ items) ---
 MENU_OPTIONS = {
