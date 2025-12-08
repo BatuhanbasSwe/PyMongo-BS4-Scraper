@@ -1,0 +1,7 @@
+selenium
+webdriver-manager
+pymongo
+dnspython
+requests
+beautifulsoup4
+
