@@ -45,7 +45,7 @@ MENU_OPTIONS = {
 def print_menu():
     """Displays the main menu options to the user."""
     print("\n" + "=" * 40)
-    print("      IMDb SCRAPER PRO (FINAL)      ")
+    print("      IMDb SCRAPER w/SELENIUM     ")
     print("=" * 40)
     print("1. Top 250 Movies")
     print("2. Top 250 TV Shows")
