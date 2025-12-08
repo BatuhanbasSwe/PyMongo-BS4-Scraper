@@ -49,7 +49,10 @@ MENU_OPTIONS = {
 
 def clear_terminal():
     """Clears the terminal screen."""
-    os.system('clear')
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
 
 
 def print_menu():
