@@ -62,7 +62,7 @@ source venv/bin/activate
 Install the required Python libraries inside your virtual environment:
 
 ```bash
-pip install selenium
+pip install -r requirements.txt 
 ```
 
 ### 4. Driver Setup
