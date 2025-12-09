@@ -3,14 +3,12 @@ IMDb Scraper Pro - Main Application Module.
 This module handles the CLI interface, user interactions,
 and coordinates the scraping and database operations.
 """
-
+import os
 import argparse
 from dataclasses import dataclass, asdict
+from dotenv import load_dotenv  # Şifreleri gizlemek için
 from databasemanager import MongoDBManager
 from new_scraper import IMDbScraper
-from dotenv import load_dotenv
-from databasemanager import MongoDBManager
-import os
 
 load_dotenv()
 
