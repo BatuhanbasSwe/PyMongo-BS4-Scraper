@@ -5,7 +5,15 @@ including connection, data insertion (upsert), and retrieval.
 """
 
 import datetime
+import logging
 from pymongo import MongoClient
+
+# Configure logging
+logging.basicConfig(
+    filename='db_connection.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 
 class MongoDBManager:
@@ -28,10 +36,14 @@ class MongoDBManager:
             self.client.admin.command('ping')
             self.db = self.client[self.db_name]
             self.collection = self.db[self.collection_name]
-            print(f"--> Connection Successful! Target: {self.db_name} -> {self.collection_name}")
+            message = f"--> Connection Successful! Target: {self.db_name} -> {self.collection_name}"
+            print(message)
+            logging.info(message)
             return True
         except Exception as e:  # pylint: disable=broad-except
-            print(f"---> Connection Failed: {e}")
+            message = f"---> Connection Failed: {e}"
+            print(message)
+            logging.error(message)
             return False
 
     def insert_data(self, data_dict, rank=None):

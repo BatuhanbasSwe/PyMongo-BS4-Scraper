@@ -3,13 +3,14 @@ IMDb Scraper Pro - Main Application Module.
 This module handles the CLI interface, user interactions,
 and coordinates the scraping and database operations.
 """
-
-
+import os
 import argparse
 from dataclasses import dataclass, asdict
+from dotenv import load_dotenv  # Şifreleri gizlemek için
 from databasemanager import MongoDBManager
 from new_scraper import IMDbScraper
 
+load_dotenv()
 
 @dataclass
 class IMDbContent:
@@ -23,7 +24,9 @@ class IMDbContent:
 
 # MongoDB Connection String
 # IMPORTANT: Replace MYPASSWORD with your actual password!
-MY_URI ="mongodb+srv://oguzbatu2934_db_user:PASSWORD@cluster0.kejl8qw.mongodb.net/?appName=Cluster0"
+MY_URI = os.getenv("MONGO_URI")
+
+db_manager = MongoDBManager(MY_URI, "IMDb_Archive", "Allcontent")
 
 # --- SMART LINKS (For fetching 250+ items) ---
 MENU_OPTIONS = {
@@ -42,8 +45,17 @@ MENU_OPTIONS = {
 }
 
 
+def clear_terminal():
+    """Clears the terminal screen."""
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
+
+
 def print_menu():
     """Displays the main menu options to the user."""
+    clear_terminal()
     print("\n" + "=" * 40)
     print("      IMDb SCRAPER w/SELENIUM     ")
     print("=" * 40)
@@ -186,11 +198,13 @@ if __name__ == "__main__":
                 choice = input("Choice: ").strip().upper()
 
                 if choice == 'Q':
+                    clear_terminal()
                     print("Exiting...")
                     break
 
                 # --- SCRAPING OPERATIONS (1, 2, 3) ---
                 if choice in MENU_OPTIONS:
+                    clear_terminal()
                     target = MENU_OPTIONS[choice]
 
                     # Graceful Input Handling (Avoid Crash)
@@ -238,6 +252,7 @@ if __name__ == "__main__":
 
                 # --- ALGORITHM OPERATIONS (4, 5, 6, 7, 8) ---
                 elif choice in ALGORITHM_ACTIONS:
+                    clear_terminal()
                     ALGORITHM_ACTIONS[choice](db_manager)
                     input("\nPress Enter to continue...")
 
